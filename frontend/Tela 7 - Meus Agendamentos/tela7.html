@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela 7 - Meus Agentamentos</title>
+    <link rel="stylesheet" href="css/tela7.css">
+</head>
+<body>
+    <header>
+        <img src="img/Logo FECAF.png" alt="Logo">
+    </header>
+
+    <div>
+        <button type="submit" onclick="redirectToPage2()">Voltar</button>
+    </div>
+
+ 
+    <script>
+        function redirectToPage2() {
+            window.location.href = '../Tela 2 - Inicio/tela2.html'; 
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Recupera o token do Local Storage
+            const token = localStorage.getItem('refresh_token');
+            console.log(token)
+
+            // Faz a requisição para a API
+            fetch('http://127.0.0.1:5000/agendamentos', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Processa os dados e exibe na tela
+                data.forEach(agendamento => {
+                    const container = document.createElement('div');
+                    container.classList.add('container-aberto');
+
+                    const horaData = document.createElement('div');
+                    horaData.classList.add('hora-data');
+                    horaData.innerText = `${agendamento.hora_inicio} - ${agendamento.data}`;
+
+                    const local = document.createElement('div');
+                    local.classList.add('local');
+                    local.innerText = `Laboratório de Informática ${agendamento.id_laboratorio}`;
+
+                    container.appendChild(horaData);
+                    container.appendChild(local);
+
+                    document.body.appendChild(container);
+                });
+            })
+            .catch(error => console.error('Erro ao recuperar agendamentos:', error));
+        });
+    </script>
+
+</body>
+</html>

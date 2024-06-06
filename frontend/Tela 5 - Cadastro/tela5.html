@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela 5 - Cadastro</title>
+    <link rel="stylesheet" href="css/tela5.css">
+</head>
+    <header>
+        <img src="img/Logo FECAF.png" alt="Logo">
+    </header>
+<body>
+    <form id="cadastro-form">
+        <div class="container-cadastro">
+            <h1>Cadastre-se</h1>
+            <label class="tipos" for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" class="centered-border" required>
+    
+            <label class="tipos" for="email">E-mail</label>
+            <input type="email" id="email" name="email" class="centered-border" required>
+    
+            <label class="tipos" for="senha">Senha</label>
+            <input type="password" id="password" name="password" required>
+    
+            <button class="cadastrar" type="submit">Cadastrar</button>
+        </div>
+    </form>
+
+    <script>
+        document.getElementById('cadastro-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/professores', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+
+                if (response.ok) {
+                    window.location.href = '../Tela 6 - Cadastrado/tela6.html';
+                } else {
+                    alert('Erro ao cadastrar. Por favor, tente novamente.');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao cadastrar. Por favor, tente novamente.');
+            }
+        });
+    </script>
+</body>
+</html>

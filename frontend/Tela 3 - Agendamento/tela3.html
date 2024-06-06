@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela 3 - Agendamento</title>
+    <link rel="stylesheet" href="css/tela3.css">
+</head>
+<body>
+    <header>
+        <img src="img/Logo FECAF.png" alt="Logo">
+    </header>
+
+    <div>
+        <button class="button-voltar" onclick="redirectToPage2()">Voltar</button>
+    </div>
+
+    <div>
+        <h1>laboratórios</h1>
+    </div>
+    <div class="container-coluna">
+        <div class="container-button">
+            <button class ="lab" id="click1" type="submit" onclick="selectLaboratory(1)">Laboratório de Informática I</button>
+            <button class ="lab" id="click2" type="submit" onclick="selectLaboratory(2)">Laboratório de Informática II</button>
+            <button class ="lab" id="click3" type="submit" onclick="selectLaboratory(3)">Laboratório de Informática III</button>
+        </div>
+
+    
+        <div class="container-agendamento">
+            <h2>Agendamento</h2>
+            <form id="agendamento-form" onsubmit="submitAgendamento(event)">
+                <div class="form-group">
+                    <label for="data">Data:</label>
+                    <input type="date" id="data" name="data" required>
+                </div>
+                <div class="form-group">
+                    <label for="horario_inicio">Horário inicial:</label>
+                    <input type="time" id="horario_inicio" name="horario_inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="horario_fim">Horário final:</label>
+                    <input type="time" id="horario_fim" name="horario_fim" required>
+                </div>
+                <button class="agendar" type="submit">Agendar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function redirectToPage2() {
+            window.location.href = '../Tela 2 - Inicio/tela2.html'; 
+        }
+
+        function selectLaboratory(labId) {
+            const labButton = document.getElementById(`click${labId}`);
+            labButton.classList.toggle('selected');
+        }
+
+        async function submitAgendamento(event) {
+            event.preventDefault();
+
+            const selectedLab = document.querySelector('.selected');
+            if (!selectedLab) {
+                alert('Por favor, selecione um laboratório.');
+                return;
+            }
+
+            const labId = selectedLab.id.replace('click', '');
+
+            const data = document.getElementById('data').value;
+            const horarioInicio = document.getElementById('horario_inicio').value;
+            const horarioFim = document.getElementById('horario_fim').value;
+
+            const body = {
+                id_laboratorio: labId,
+                data: data,
+                hora_inicio: horarioInicio,
+                hora_fim: horarioFim
+            };
+            // Recupera o token do Local Storage
+            const token = localStorage.getItem('refresh_token');
+            try {
+                const response = await fetch('http://127.0.0.1:5000/agendamentos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    alert('Agendamento realizado com sucesso!');
+                    // Redirecionar para a página de confirmação ou outra página desejada
+                    window.location.href = '../Tela 4 - Confirmacao/tela4.html'
+                } else {
+                    alert('Erro ao fazer o agendamento. Por favor, tente novamente.');
+                }
+            } catch (error) {
+                console.error('Erro ao fazer o agendamento:', error);
+            }
+        }
+    </script>
+
+</body>
+</html>

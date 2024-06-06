@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, create_access_token, create_refresh_token
+from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from src.secret.get_rds_credentials import get_secret
@@ -15,6 +16,9 @@ from src.auth.auth import authenticate_professor
 load_dotenv()  # Carrega as variáveis de ambiente do arquivo .env
 
 app = Flask(__name__)
+
+# Hbilitando CORS, para consumo no front end
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Configurações do JWT
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
@@ -112,15 +116,27 @@ def refresh():
 @app.route('/agendamentos', methods=['POST'])
 @jwt_required()
 def create_agendamento():
-    current_user = get_jwt_identity()
-    data = request.json
-    id_laboratorio = data.get('id_laboratorio')
-    id_professor = current_user
-    data_agendamento = data.get('data')
-    hora_inicio = data.get('hora_inicio')
-    hora_fim = data.get('hora_fim')
-    agendamento_id = agendamento_service.create_agendamento(id_laboratorio, id_professor, data_agendamento, hora_inicio, hora_fim)
-    return jsonify({'id': agendamento_id}), 201
+    try:
+        current_user = get_jwt_identity()
+
+        data = request.json
+        id_laboratorio = data.get('id_laboratorio')
+        id_professor = current_user
+        data_agendamento = data.get('data')
+        hora_inicio = data.get('hora_inicio')
+        hora_fim = data.get('hora_fim')
+
+        agendamento_id = agendamento_service.create_agendamento(id_laboratorio, id_professor, data_agendamento, hora_inicio, hora_fim)
+
+        return jsonify(agendamento_id), 201
+
+
+    except CustomException as e:
+        return jsonify({'error': str(e)}), 400
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/agendamentos', methods=['GET'])
 @jwt_required()

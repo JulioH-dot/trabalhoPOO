@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela 2 - Inicio</title>
+    <link rel="stylesheet" href="css/tela2.css">
+</head>
+<body>
+    <header>
+        <img src="img/Logo FECAF.png" alt="Logo">
+    </header>
+
+        <div class="container">
+            <button class="inicio" type="submit" onclick="redirectToPage7()">Meus Agendamentos</button>
+            <button class="inicio" type="submit" onclick="redirectToPage3()">Agendar Laboratório</button>
+            <button class="inicio" type="submit" onclick="redirectToPage1()">Sair</button>
+        </div>
+        
+    <script>
+        function redirectToPage3() {
+            window.location.href = '../Tela 3 - Agendamento/tela3.html'; 
+        }
+
+        function redirectToPage1() {
+            window.location.href = '../Tela 1 - Login/tela1.html'; 
+        }
+
+        function redirectToPage7() {
+            window.location.href = '../Tela 7 - Meus Agendamentos/tela7.html'; 
+        }
+    </script>
+</body>
+</html>

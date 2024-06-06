@@ -6,3 +6,13 @@ class Agendamento:
         self.data = data
         self.hora_inicio = hora_inicio
         self.hora_fim = hora_fim
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'id_laboratorio': self.id_laboratorio,
+            'id_professor': self.id_professor,
+            'data': self.data,
+            'hora_inicio': self.hora_inicio,
+            'hora_fim': self.hora_fim
+        }

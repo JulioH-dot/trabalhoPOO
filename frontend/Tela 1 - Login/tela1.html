@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela Login</title>
+    <link rel="stylesheet" href="css/tela1.css">
+</head>
+<header>
+    <img src="img/Logo FECAF.png" alt="Logo">
+</header>
+<body>
+    <h1>Entrar</h1>
+    <form id="login-form">
+        <div class="container">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" class="centered-border" required>
+
+            <label for="senha">Senha</label>
+            <input type="password" id="password" name="password" required>
+
+            <button class="acessar" type="submit">Acessar</button>
+            <button class="cadastro" type="button" onclick="redirectToPage5()">Cadastre-se</button>
+        </div>
+    </form>
+    <script>
+        function redirectToPage2() {
+            window.location.href = '../Tela 2 - Inicio/tela2.html'; 
+        }
+
+        function redirectToPage5() {
+            window.location.href = '../Tela 5 - Cadastro/tela5.html'; 
+        }
+    </script>
+    <script src="auth.js"></script>
+</body>
+</html>

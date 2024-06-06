@@ -1,0 +1,66 @@
+body {
+    background-color: #0A1727;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow: hidden;
+    place-items: center;
+}
+header img {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    margin-top: 1%;
+}
+
+
+
+h1 {
+    text-align: center;
+   
+}
+
+.container-cadastro {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    max-width: 200px;
+    padding: 20px 30px;
+    margin: 0 auto;
+    gap: 5px;
+    border-radius: 4px;
+}
+
+input {
+    padding: 5px;
+}
+
+
+/* Botão Cadastrar */
+
+.cadastrar {
+    margin-top: 10%;
+    padding: 10px;
+    border: none;
+    outline: none;
+    background-color: black;
+    border-radius: 4px;
+    color: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.842);
+    transition: 0.5s;
+    cursor: pointer;
+}
+
+.cadastrar:hover {
+    transform: translateY(2px);
+    background-image: linear-gradient(to top, #232233, #072141);
+}
+
+
+@media (min-width: 1920px) {
+    header img {
+        margin-bottom: 4%;
+        margin-top: 4%;
+    }
+}

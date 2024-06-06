@@ -10,6 +10,7 @@ class AgendamentoRepository:
     def __init__(self, database):
         self.database = database
 
+
     def create(self, agendamento):
         try:
             with self.database.connect() as conn:
@@ -19,33 +20,27 @@ class AgendamentoRepository:
                     VALUES (%s, %s, %s, %s, %s) RETURNING id
                     """
                     cursor.execute(sql, (agendamento.id_laboratorio, agendamento.id_professor, agendamento.data, agendamento.hora_inicio, agendamento.hora_fim))
+                    agendamento_id = cursor.fetchone()[0]
                     conn.commit()
-                    return cursor.fetchone()[0]
+                    return agendamento_id
         except IntegrityError as e:
             raise CustomException(ErrorType.INVALID_OPERATION, "Já existe um agendamento para o mesmo laboratório e horário.")
 
     def fazer_agendamento(self, agendamento):
-        horario_inicio = datetime.strptime("08:00", "%H:%M")
-        horario_fim = datetime.strptime("22:00", "%H:%M")
-        horario_atual = horario_inicio
+        horario_inicio = datetime.strptime(agendamento.hora_inicio, "%H:%M").time()
+        horario_fim = datetime.strptime(agendamento.hora_fim, "%H:%M").time()
 
-        while horario_atual + timedelta(hours=1) <= horario_fim:
-            if self.existe_agendamento_no_intervalo(agendamento.id_laboratorio, agendamento.data, horario_atual - timedelta(minutes=15), horario_atual + timedelta(hours=1)):
-                # Verifica se existe algum agendamento dentro do intervalo de 15 minutos antes e depois do horário atual
-                if not self.existe_agendamento_no_intervalo(agendamento.id_laboratorio, agendamento.data, horario_atual - timedelta(minutes=15), horario_atual + timedelta(hours=1)):
-                    agendamento = Agendamento(
-                        None,
-                        id_laboratorio=agendamento.id_laboratorio,
-                        id_professor=agendamento.id_professor,
-                        data=agendamento.data,
-                        hora_inicio=horario_atual,
-                        hora_fim=horario_atual + timedelta(hours=1)
-                    )
-                    self.create(agendamento)
-                    return agendamento
-            horario_atual += timedelta(minutes=15)
-        
-        raise CustomException(ErrorType.INVALID_OPERATION, "Nenhum horário disponível para agendamento")
+        # Ajusta horários para considerar intervalo de 15 minutos
+        inicio_intervalo = (datetime.combine(datetime.today(), horario_inicio) - timedelta(minutes=15)).time()
+        fim_intervalo = (datetime.combine(datetime.today(), horario_fim) + timedelta(minutes=15)).time()
+
+        # Verifica se o horário especificado está disponível
+        if self.existe_agendamento_no_intervalo(agendamento.id_laboratorio, agendamento.data, inicio_intervalo, fim_intervalo):
+            raise CustomException(ErrorType.INVALID_OPERATION, "O horário especificado não está disponível")
+
+        agendamento_id = self.create(agendamento)
+        return {"id": agendamento_id, "mensagem": "Agendamento criado com sucesso."}
+
 
     def existe_agendamento_no_intervalo(self, id_laboratorio, data, inicio, fim):
         with self.database.connect() as conn:
@@ -54,12 +49,10 @@ class AgendamentoRepository:
                 SELECT COUNT(*) FROM Agendamento 
                 WHERE id_laboratorio = %s 
                 AND data = %s 
-                AND hora_inicio::time >= %s::time 
-                AND hora_fim::time <= %s::time
+                AND (hora_inicio < %s::time AND hora_fim > %s::time)
                 """
-                cursor.execute(sql, (id_laboratorio, data, str(inicio), str(fim)))
+                cursor.execute(sql, (id_laboratorio, data, fim, inicio))
                 return cursor.fetchone()[0] > 0
-
 
     def get_all(self):
         with self.database.connect() as conn:

@@ -12,7 +12,7 @@ from src.repository.agendamento_repository import AgendamentoRepository
 from src.service.agendamento_service import AgendamentoService
 from src.exceptions.custom_exception import ErrorType, CustomException
 from src.auth.auth import authenticate_professor
-
+ 
 load_dotenv()  # Carrega as variáveis de ambiente do arquivo .env
 
 app = Flask(__name__)

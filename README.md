@@ -11,7 +11,7 @@ Este projeto é uma aplicação web para agendar horários em laboratórios de u
 
 ## Tecnologias Utilizadas
 
-- **Frontend:** HTML, CSS, JavaScript (utilizando o framework Vue.js)
+- **Frontend:** HTML, CSS, JavaScript 
 - **Backend:** Python (utilizando o framework Flask)
 - **Banco de Dados:** PostgreSQL
 - **Autenticação:** JSON Web Tokens (JWT)

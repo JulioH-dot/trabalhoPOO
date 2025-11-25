@@ -7,7 +7,7 @@ class ProfessorRepository:
     def create(self, professor):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                sql = "INSERT INTO Professor (Nome, Email, Senha) VALUES (%s, %s, %s) RETURNING ID"
+                sql = "INSERT INTO professores (nome, email, senha_hash) VALUES (%s, %s, %s) RETURNING ID"
                 cursor.execute(sql, (professor.nome, professor.email, professor.senha))
                 conn.commit()
                 return cursor.fetchone()[0]
@@ -15,13 +15,13 @@ class ProfessorRepository:
     def get_all(self):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("SELECT * FROM Professor")
+                cursor.execute("SELECT * FROM professores")
                 return [Professor(*row) for row in cursor.fetchall()]
     
     def get_by_id(self, professor_id):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                sql = "SELECT * FROM Professor WHERE ID = %s"
+                sql = "SELECT * FROM professores WHERE id = %s"
                 cursor.execute(sql, (professor_id,))
                 professor = cursor.fetchone()
                 if professor:
@@ -32,14 +32,14 @@ class ProfessorRepository:
     def update(self, professor):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                sql = "UPDATE Professor SET Nome = %s, Email = %s, Senha = %s WHERE ID = %s"
+                sql = "UPDATE professores SET nome = %s, email = %s, senha_hash = %s WHERE id = %s"
                 cursor.execute(sql, (professor.nome, professor.email, professor.senha, professor.id))
                 conn.commit()
 
     def delete(self, professor_id):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                sql = "DELETE FROM Professor WHERE ID = %s"
+                sql = "DELETE FROM professores WHERE id = %s"
                 cursor.execute(sql, (professor_id,))
                 conn.commit()
     
@@ -47,7 +47,7 @@ class ProfessorRepository:
         # Verifica se as credenciais estão corretas
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                sql = "SELECT * FROM Professor WHERE Email = %s AND Senha = %s"
+                sql = "SELECT * FROM professores WHERE email = %s AND senha_hash = %s"
                 cursor.execute(sql, (email, senha))
                 professor = cursor.fetchone()
                 return professor
@@ -55,7 +55,7 @@ class ProfessorRepository:
     def get_by_email(self, email):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                sql = "SELECT * FROM Professor WHERE Email = %s"
+                sql = "SELECT * FROM professores WHERE email = %s"
                 cursor.execute(sql, (email,))
                 result = cursor.fetchone()
                 if result:

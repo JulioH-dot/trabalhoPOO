@@ -78,7 +78,8 @@
                 hora_fim: horarioFim
             };
             // Recupera o token do Local Storage
-            const token = localStorage.getItem('refresh_token');
+            const token = localStorage.getItem('access_token');
+            console.log(JSON.stringify(body));
             try {
                 const response = await fetch('http://127.0.0.1:5000/agendamentos', {
                     method: 'POST',

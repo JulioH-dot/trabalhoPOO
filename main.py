@@ -24,6 +24,27 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 jwt = JWTManager(app)
 
+@jwt.unauthorized_loader
+def unauthorized_callback(callback):
+    app.logger.error(f"Erro JWT: Nenhuma autorização fornecida.")
+    return jsonify({'message': 'Token de acesso não fornecido no cabeçalho Authorization.'}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(callback):
+    app.logger.error(f"Erro JWT: Token inválido. Descrição: {callback}")
+    return jsonify({'message': f'Token inválido: {callback}'}), 401
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    app.logger.error(f"Erro JWT: Token expirado. Payload: {jwt_payload}")
+    return jsonify({'message': 'Token de acesso expirado.'}), 401
+
+def handle_jwt_errors(error):
+    app.logger.error(f"Erro JWT Capturado: {type(error).__name__} - {str(error)}")
+    # Retorna o erro 401 para qualquer falha de autenticação JWT
+    return jsonify({'message': 'Falha na autenticação do Token', 'details': str(error)}), 401
+
+
 # Configurações do banco de dados
 db_host = os.getenv('DB_HOST')
 db_name = os.getenv('DB_NAME')
@@ -31,7 +52,13 @@ db_name = os.getenv('DB_NAME')
 # Conexão com o banco de dados
 db_password_user = get_secret()
 
-database = Database(db_name, db_password_user['username'], db_password_user['password'], db_host)
+db_name = db_password_user['dbname']
+user = db_password_user['username']
+password = db_password_user['password']
+db_host = db_password_user['host']
+port = db_password_user['port']
+
+database = Database(db_name, user, password, db_host)
 
 # Instânciando repositorios e serviços
 professor_service = ProfessorService(ProfessorRepository(database))
@@ -116,10 +143,18 @@ def refresh():
 @app.route('/agendamentos', methods=['POST'])
 @jwt_required()
 def create_agendamento():
+    if not request.is_json:
+            app.logger.error("Requisição negada: Content-Type não é application/json")
+            return jsonify({'message': 'Content-Type deve ser application/json'}), 415 # 415 Unsupported Media Type
     try:
+        # Apenas para testar se o código chega aqui
+        print("--- DEBUG: Rota Agendamentos Acessada ---")
+        app.logger.info(f"--- DEBUG: Rota Agendamentos Acessada ---")
         current_user = get_jwt_identity()
-
+        
         data = request.json
+        app.logger.info(f"Payload Recebido no POST /agendamentos: {data}")
+        print(request.json)
         id_laboratorio = data.get('id_laboratorio')
         id_professor = current_user
         data_agendamento = data.get('data')
@@ -132,27 +167,42 @@ def create_agendamento():
 
 
     except CustomException as e:
-        return jsonify({'error': str(e)}), 400
-
+        # Imprime o erro que está causando o 422
+        app.logger.error(f"Erro CustomException: {e.message} ({e.error_type.name})")
+        return jsonify({'message': e.message, 'type': e.error_type.name}), 400
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Erro interno não tratado: {e}")
+        return jsonify({'message': 'Erro interno do servidor', 'type': 'INTERNAL_ERROR'}), 500
 
 
 @app.route('/agendamentos', methods=['GET'])
 @jwt_required()
 def get_all_agendamentos():
-    agendamentos = agendamento_service.get_all_agendamentos()
-    agendamentos_dict = [
-        {
-            'id': a.id,
-            'id_laboratorio': a.id_laboratorio,
-            'id_professor': a.id_professor,
-            'data': a.data,
-            'hora_inicio': a.hora_inicio.strftime('%H:%M:%S'),  # Convertendo para string
-            'hora_fim': a.hora_fim.strftime('%H:%M:%S')  # Convertendo para string
-        } for a in agendamentos
-    ]
-    return jsonify(agendamentos_dict)
+    try:
+        agendamentos = agendamento_service.get_all_agendamentos()
+        
+        agendamentos_dict = []
+        for a in agendamentos:
+            agendamentos_dict.append({
+                'id': a.id,
+                'id_laboratorio': a.id_laboratorio,
+                'id_professor': a.id_professor,
+                'data_agendamento': a.data_agendamento,
+                'hora_inicio': a.hora_inicio.strftime('%H:%M:%S') if hasattr(a.hora_inicio, 'strftime') else str(a.hora_inicio),
+                'hora_fim': a.hora_fim.strftime('%H:%M:%S') if hasattr(a.hora_fim, 'strftime') else str(a.hora_fim)
+            })
+            
+        return jsonify(agendamentos_dict)
+        
+    except CustomException as e:
+        app.logger.error(f"Erro CustomException no GET /agendamentos: {e.message}")
+        return jsonify({'message': e.message, 'type': e.error_type.name}), e.http_status_code()
+    
+    except Exception as e:
+        import traceback
+        app.logger.error(f"Erro INESPERADO no GET /agendamentos: {e}")
+        app.logger.error(traceback.format_exc()) # Imprime a traceback completa
+        return jsonify({'message': 'Erro interno ao listar agendamentos', 'type': 'INTERNAL_SERVER_ERROR'}), 500
 
 @app.route('/agendamentos/<int:agendamento_id>', methods=['GET'])
 @jwt_required()
@@ -162,9 +212,9 @@ def get_agendamento_by_id(agendamento_id):
         'id': agendamento.id,
         'id_laboratorio': agendamento.id_laboratorio,
         'id_professor': agendamento.id_professor,
-        'data': agendamento.data,
-        'hora_inicio': agendamento.hora_inicio.strftime('%H:%M:%S'),  # Convertendo para string
-        'hora_fim': agendamento.hora_fim.strftime('%H:%M:%S')  # Convertendo para string
+        'data_agendamento': agendamento.data,
+        'hora_inicio': a.hora_inicio.strftime('%H:%M:%S'), # Convertendo para string
+        'hora_fim': a.hora_fim.strftime('%H:%M:%S') # Convertendo para string
     }
     return jsonify(agendamento_dict)
 

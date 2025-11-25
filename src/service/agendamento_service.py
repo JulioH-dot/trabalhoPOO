@@ -26,9 +26,10 @@ class AgendamentoService:
             id=None,
             id_laboratorio=id_laboratorio,
             id_professor=id_professor,
-            data=data,
+            data_agendamento=data,
             hora_inicio=hora_inicio,
-            hora_fim=hora_fim
+            hora_fim=hora_fim,
+            criado_em=None
         )
         return self.agendamento_repository.fazer_agendamento(agendamento)
 

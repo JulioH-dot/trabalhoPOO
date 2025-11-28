@@ -1,2 +1,12 @@
+# Ambientes Virtuais Python
 venv/
 .venv/
+
+# Cache e Arquivos de Terraform
+# Ignora o cache local dos providers
+.terraform/
+# Ignora arquivos de estado (state files)
+*.tfstate
+*.tfstate.*
+# Ignora planos de execução
+*.tfplan

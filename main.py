@@ -13,7 +13,7 @@ from src.service.agendamento_service import AgendamentoService
 from src.exceptions.custom_exception import ErrorType, CustomException
 from src.auth.auth import authenticate_professor
  
-load_dotenv()  # Carrega as variáveis de ambiente do arquivo .env
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -60,7 +60,6 @@ port = db_password_user['port']
 
 database = Database(db_name, user, password, db_host)
 
-# Instânciando repositorios e serviços
 professor_service = ProfessorService(ProfessorRepository(database))
 agendamento_repository = AgendamentoRepository(database)
 agendamento_service = AgendamentoService(agendamento_repository)
@@ -94,7 +93,7 @@ def update_professor(id):
     email = data['email']
     senha = data['senha']
 
-    professor_service.atualizar_professor(Professor(id, nome, email, senha))
+    professor_service.atualizar_professor(id, nome, email, senha)
 
     return jsonify({'message': 'Professor atualizado com sucesso!'})
 
@@ -123,12 +122,15 @@ def login_professor():
     email = data['email']
     senha = data['senha']
 
-    access_token = authenticate_professor(professor_service, email, senha)
+    tokens = authenticate_professor(professor_service, email, senha)
+
+    if tokens is None:
+        return jsonify({'message': 'Credenciais inválidas'}), 401
+    
+    access_token, refresh_token = tokens
 
     if access_token:
-        return jsonify({'access_token': access_token}), 200
-    else:
-        return jsonify({'message': 'Credenciais inválidas'}), 401
+        return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
 
 # Rota de refresh token
 @app.route('/refresh', methods=['POST'])
@@ -145,9 +147,8 @@ def refresh():
 def create_agendamento():
     if not request.is_json:
             app.logger.error("Requisição negada: Content-Type não é application/json")
-            return jsonify({'message': 'Content-Type deve ser application/json'}), 415 # 415 Unsupported Media Type
+            return jsonify({'message': 'Content-Type deve ser application/json'}), 415 
     try:
-        # Apenas para testar se o código chega aqui
         print("--- DEBUG: Rota Agendamentos Acessada ---")
         app.logger.info(f"--- DEBUG: Rota Agendamentos Acessada ---")
         current_user = get_jwt_identity()
@@ -167,7 +168,6 @@ def create_agendamento():
 
 
     except CustomException as e:
-        # Imprime o erro que está causando o 422
         app.logger.error(f"Erro CustomException: {e.message} ({e.error_type.name})")
         return jsonify({'message': e.message, 'type': e.error_type.name}), 400
     except Exception as e:
@@ -201,7 +201,7 @@ def get_all_agendamentos():
     except Exception as e:
         import traceback
         app.logger.error(f"Erro INESPERADO no GET /agendamentos: {e}")
-        app.logger.error(traceback.format_exc()) # Imprime a traceback completa
+        app.logger.error(traceback.format_exc())
         return jsonify({'message': 'Erro interno ao listar agendamentos', 'type': 'INTERNAL_SERVER_ERROR'}), 500
 
 @app.route('/agendamentos/<int:agendamento_id>', methods=['GET'])
@@ -212,9 +212,9 @@ def get_agendamento_by_id(agendamento_id):
         'id': agendamento.id,
         'id_laboratorio': agendamento.id_laboratorio,
         'id_professor': agendamento.id_professor,
-        'data_agendamento': agendamento.data,
-        'hora_inicio': a.hora_inicio.strftime('%H:%M:%S'), # Convertendo para string
-        'hora_fim': a.hora_fim.strftime('%H:%M:%S') # Convertendo para string
+        'data_agendamento': agendamento.data_agendamento,
+        'hora_inicio': agendamento.hora_inicio.strftime('%H:%M:%S'), 
+        'hora_fim': agendamento.hora_fim.strftime('%H:%M:%S') 
     }
     return jsonify(agendamento_dict)
 
@@ -227,7 +227,8 @@ def update_agendamento(agendamento_id):
     id_professor = current_user
     data_agendamento = data.get('data')
     hora_inicio = data.get('hora_inicio')
-    agendamento_service.update_agendamento(agendamento_id, id_laboratorio, id_professor, data_agendamento, hora_inicio)
+    hora_fim = data.get('hora_fim')
+    agendamento_service.update_agendamento(agendamento_id, id_laboratorio, id_professor, data_agendamento, hora_inicio, hora_fim)
     return jsonify({'message': 'Agendamento atualizado com sucesso'})
 
 @app.route('/agendamentos/<int:agendamento_id>', methods=['DELETE'])

@@ -48,7 +48,7 @@ class AgendamentoService:
             id=agendamento_id,
             id_laboratorio=id_laboratorio,
             id_professor=id_professor,
-            data=data,
+            data_agendamento=data,
             hora_inicio=hora_inicio,
             hora_fim=hora_fim
         )

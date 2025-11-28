@@ -6,6 +6,7 @@ def authenticate_professor(professor_service, email, senha):
     professor = professor_service.login_professor(email, senha)
     if professor:
         access_token = create_access_token(identity=str(professor.id))
-        return access_token
+        refresh_token = create_refresh_token(identity=str(professor.id))
+        return access_token, refresh_token
     else:
         return None

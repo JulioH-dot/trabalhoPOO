@@ -1,0 +1,340 @@
+{
+	"info": {
+		"_postman_id": "7a7a0ce1-9914-43c5-a2bd-e69b78f1ad25",
+		"name": "API Professores e Agendamentos",
+		"description": "Collection gerada automaticamente para testar a API Flask",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25186408"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();\r",
+							"pm.environment.set('access_token', data.access_token);\r",
+							"pm.environment.set('refresh_token', data.refresh_token);\r",
+							"pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\": \"juliohenrique1909@gmail.com\", \"senha\": \"102030\"}"
+				},
+				"url": {
+					"raw": "{{base_url}}/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = pm.response.json();\r",
+							"pm.environment.set('access_token', data.access_token);\r",
+							"pm.environment.set('refresh_token', data.refresh_token);\r",
+							"pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{refresh_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/refresh",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Professor",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"nome\": \"Fulano\", \"email\": \"fulano@teste.com\", \"senha\": \"123456\"}"
+				},
+				"url": {
+					"raw": "{{base_url}}/professores",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"professores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar Professores",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/professores",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"professores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar Professor por ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/professores/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"professores",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar Professor",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"nome\": \"Novo Nome\", \"email\": \"novo@teste.com\", \"senha\": \"654321\"}"
+				},
+				"url": {
+					"raw": "{{base_url}}/professores/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"professores",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar Professor",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/professores/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"professores",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Agendamento",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id_laboratorio\": 1, \"data\": \"2025-11-20\", \"hora_inicio\": \"08:00\", \"hora_fim\": \"10:00\"}"
+				},
+				"url": {
+					"raw": "{{base_url}}/agendamentos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"agendamentos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar Agendamentos",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/agendamentos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"agendamentos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar Agendamento por ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/agendamentos/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"agendamentos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar Agendamento",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id_laboratorio\": 1, \"data\": \"2025-11-21\", \"hora_inicio\": \"09:00\"}"
+				},
+				"url": {
+					"raw": "{{base_url}}/agendamentos/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"agendamentos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar Agendamento",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/agendamentos/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"agendamentos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:5000"
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
+		}
+	]
+}

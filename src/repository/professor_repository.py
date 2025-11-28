@@ -15,7 +15,7 @@ class ProfessorRepository:
     def get_all(self):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                cursor.execute("SELECT * FROM professores")
+                cursor.execute("SELECT id, nome, email, criado_em FROM professores")
                 return [Professor(*row) for row in cursor.fetchall()]
     
     def get_by_id(self, professor_id):
@@ -55,8 +55,8 @@ class ProfessorRepository:
     def get_by_email(self, email):
         with self.database.connect() as conn:
             with conn.cursor() as cursor:
-                sql = "SELECT * FROM professores WHERE email = %s"
-                cursor.execute(sql, (email,))
+                sql = f"SELECT * FROM professores WHERE email = '{email}'"
+                cursor.execute(sql)
                 result = cursor.fetchone()
                 if result:
                     professor = Professor(*result)

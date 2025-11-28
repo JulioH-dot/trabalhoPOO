@@ -1,5 +1,5 @@
 class Agendamento:
-    def __init__(self, id, id_laboratorio, id_professor, data_agendamento, hora_inicio, hora_fim, criado_em=None):
+    def __init__(self, id, id_laboratorio, id_professor, data_agendamento, hora_inicio, hora_fim, criado_em=''):
         self.id = id
         self.id_laboratorio = id_laboratorio
         self.id_professor = id_professor

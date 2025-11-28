@@ -12,3 +12,4 @@ click
 python-dateutil
 six
 urllib3
+bcrypt
